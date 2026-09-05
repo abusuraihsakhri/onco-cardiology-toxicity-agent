@@ -14,6 +14,7 @@ import datetime
 import json
 import sys
 import uuid
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 
@@ -266,15 +267,33 @@ def main(argv=None):
         return 0
 
     if args.command == "batch":
-        with open(args.input, mode="r", encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
-            fieldnames = list(reader.fieldnames or [])
-            rows = list(reader)
+        input_path = Path(args.input)
+        if not input_path.is_file():
+            print(f"Error: Input file '{args.input}' not found.", file=sys.stderr)
+            return 1
+
+        try:
+            with open(input_path, mode="r", encoding="utf-8-sig") as f:
+                reader = csv.DictReader(f)
+                fieldnames = list(reader.fieldnames or [])
+                rows = list(reader)
+        except (csv.Error, UnicodeDecodeError) as e:
+            print(f"Error: Failed to parse CSV file: {e}", file=sys.stderr)
+            return 1
 
         out_fields = fieldnames + ["overall_status", "total_alerts", "critical_count", "consensus_summary"]
         out_rows = []
-        for r in rows:
-            dossier = coordinator.audit_case(dict(r))
+        errors = 0
+        for idx, r in enumerate(rows, start=2):
+            try:
+                # Validate numeric fields before processing
+                float(r.get("metric_primary", 15.0))
+                float(r.get("metric_secondary", 5.0))
+                dossier = coordinator.audit_case(dict(r))
+            except (ValueError, TypeError) as e:
+                print(f"Warning: Skipping row {idx} due to invalid data: {e}", file=sys.stderr)
+                errors += 1
+                continue
             row_dict = dict(r)
             row_dict["overall_status"] = dossier["overall_status"]
             row_dict["total_alerts"] = dossier["total_alerts"]
@@ -282,11 +301,13 @@ def main(argv=None):
             row_dict["consensus_summary"] = dossier["consensus_summary"]
             out_rows.append(row_dict)
 
-        with open(args.output, mode="w", encoding="utf-8", newline="") as f:
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, mode="w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=out_fields)
             writer.writeheader()
             writer.writerows(out_rows)
-        print(f"Processed {len(out_rows)} records -> {args.output}")
+        print(f"Processed {len(out_rows)} records -> {args.output} ({errors} skipped)")
         return 0
 
     if args.command == "serve":

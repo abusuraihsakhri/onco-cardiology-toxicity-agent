@@ -1,6 +1,6 @@
 # Onco Cardiology Toxicity Agent
 
-> **Domain:** Cardiovascular Medicine & Hemodynamic Analytics  
+> **Domain:** Cardiovascular Medicine & Hemodynamic Analytics
 > **Reference Guidelines & Standards:** `AHA/ACC Practice Guidelines & ESC Clinical Standards`
 
 <div align="center">
@@ -18,7 +18,7 @@
 
 ## 📖 What It Does
 
-**Onco Cardiology Toxicity Agent** is an advanced analytical and computational platform implementing Cumulative Anthracycline & ICI Myocarditis Surveillance.
+**Onco Cardiology Toxicity Agent** is an advanced analytical and computational platform implementing Cumulative Anthracycline & ICI Myocarditis Surveillance. It provides multi-agent clinical decision support for cardio-oncology risk stratification.
 
 ---
 
@@ -35,6 +35,36 @@
 
 ---
 
+## 🚀 Installation
+
+### Prerequisites
+- Python 3.9 or higher
+- pip package manager
+
+### Setup
+```bash
+# Clone the repository
+git clone https://github.com/abusuraihsakhri/onco-cardiology-toxicity-agent.git
+cd onco-cardiology-toxicity-agent
+
+# Install dependencies
+pip install fastapi uvicorn pydantic pytest
+
+# Set required environment variable
+export AUDIT_SECRET_KEY="your-secure-audit-key-min-16-chars"
+```
+
+### Docker Deployment
+```bash
+# Create .env file with required variables
+echo "AUDIT_SECRET_KEY=your-secure-audit-key-min-16-chars" > .env
+
+# Build and run
+docker-compose up --build
+```
+
+---
+
 ## 💻 CLI Quickstart & Usage
 
 ### 1. Guided Interactive Mode
@@ -46,6 +76,16 @@ python cli.py
 ```bash
 python cli.py --task-id <value> --target <value> --primary <value> --secondary <value>
 ```
+
+### 3. Available Commands
+
+| Command | Description |
+|:--------|:------------|
+| `audit` | Run single task evaluation |
+| `chat` | System configuration query |
+| `batch` | Batch process CSV records |
+| `verify-audit` | Verify HMAC audit trail integrity |
+| `serve` | Launch FastAPI REST server |
 
 ### Parameter Reference
 - `--task-id`: Specifies input measurement or parameter value.
@@ -78,6 +118,15 @@ python cli.py --task-id <value> --target <value> --primary <value> --secondary <
 * **Active Learning Bayesian Calibration:** Dynamic tracker updating worker reliability weights and monitoring Brier calibration drift.
 * **FastAPI & Prometheus Telemetry:** Exposes OpenAPI 3.1 REST endpoints and operational Prometheus metrics (`/metrics`).
 
+### Security Requirements
+
+**IMPORTANT:** The `AUDIT_SECRET_KEY` environment variable is required to run this application. This key is used to sign the HMAC-SHA256 audit trail.
+
+```bash
+# Minimum 16 characters required
+export AUDIT_SECRET_KEY="your-secure-audit-key-min-16-chars"
+```
+
 ---
 
 ## 🧪 Testing & Verification
@@ -85,6 +134,10 @@ python cli.py --task-id <value> --target <value> --primary <value> --secondary <
 Run the automated test suite:
 
 ```bash
+# Set test environment variable
+export AUDIT_SECRET_KEY="test-audit-secret-key-2026-secure"
+
+# Run all tests
 pytest -v
 ```
 
@@ -94,11 +147,61 @@ Execute high-throughput batch simulation benchmarks:
 python simulator.py --tasks 1000 --concurrency 8
 ```
 
+### Test Coverage
+
+- **PHI Guard Enforcement:** Validates zero-PHI outbound interceptor
+- **Specialized Workers:** Tests all three sub-agent evaluation engines
+- **Supervisor Consensus:** Validates multi-agent consensus and audit trail
+- **Clinical Module:** Tests clinical decision support components
+- **API Endpoints:** Validates FastAPI REST endpoints
+- **Enrichment Suite:** Tests domain enrichment features
+
 ---
 
 ## 🐳 Container Deployment
 
 ```bash
 docker build -t onco-cardiology-toxicity-agent .
-docker run -p 8000:8000 onco-cardiology-toxicity-agent
+docker run -p 8000:8000 -e AUDIT_SECRET_KEY="your-secure-key" onco-cardiology-toxicity-agent
 ```
+
+---
+
+## 📁 Project Structure
+
+```
+onco-cardiology-toxicity-agent/
+├── agents/                          # Enterprise agent modules
+│   ├── api.py                       # FastAPI REST API
+│   ├── base.py                      # Security, PHI guard, audit trail
+│   ├── learning.py                  # Bayesian calibration engine
+│   ├── llm_factory.py               # LLM provider factory
+│   ├── metrics.py                   # Prometheus metrics
+│   ├── models.py                    # Pydantic data models
+│   ├── streamer.py                  # WebSocket telemetry
+│   ├── supervisor.py                # Multi-agent orchestrator
+│   └── workers.py                   # Specialized worker agents
+├── onco_cardiology_toxicity_agent/  # Clinical module
+│   ├── agents.py                    # Clinical sub-agents
+│   ├── cli.py                       # Clinical CLI
+│   ├── engine.py                    # Clinical decision engine
+│   ├── models.py                    # Clinical data models
+│   └── server.py                    # Clinical FastAPI server
+├── tests/                           # Test suite
+│   ├── test_api.py                  # API endpoint tests
+│   ├── test_clinical_module.py      # Clinical module tests
+│   ├── test_enrichment.py           # Enrichment tests
+│   └── test_onco_cardiology_toxicity_agent.py  # Core tests
+├── cli.py                           # Main CLI entry point
+├── enrichment.py                    # Domain enrichment features
+├── simulator.py                     # High-throughput simulator
+├── pyproject.toml                   # Project configuration
+├── Dockerfile                       # Container build
+└── docker-compose.yml               # Container orchestration
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

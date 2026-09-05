@@ -1,5 +1,5 @@
 import pytest
-from onco_cardio_sentinel import CumulativeDoseTrackerAgent, TroponinKineticsAgent, MyocarditisRiskStratifierAgent, OncoCardioCoordinator, main
+from onco_cardio_sentinel import CumulativeDoseTrackerAgent, TroponinKineticsAgent, MyocarditisRiskStratifierAgent, OncoCardioCoordinator, main  # noqa: E402
 
 
 def test_sub_agents():

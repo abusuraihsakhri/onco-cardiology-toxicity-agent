@@ -3,8 +3,13 @@ Automated Pytest Test Suite for Onco Cardiology Toxicity Agent.
 Domain: Cardiology & Intensive Care Systems
 Standard: AHA/ACC Guidelines / Surviving Sepsis Campaign
 """
+import os
 import sys
 from pathlib import Path
+
+# Set required environment variable before importing agents
+os.environ.setdefault("AUDIT_SECRET_KEY", "test-audit-secret-key-2026-secure")
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
