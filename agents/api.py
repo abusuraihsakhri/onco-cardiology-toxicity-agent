@@ -1,7 +1,7 @@
 """
 FastAPI REST API Server for Onco Cardiology Toxicity Agent.
 """
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import os
 import hmac
 from fastapi import FastAPI, HTTPException, Header
@@ -56,7 +56,7 @@ def api_chat(req: ChatRequest):
 
 
 @app.get("/api/audit/logs")
-def api_audit_logs(x_audit_token: str | None = Header(default=None)):
+def api_audit_logs(x_audit_token: Optional[str] = Header(default=None)):
     """Restrict ledger access to an explicitly configured read token."""
     expected = os.getenv("AUDIT_LOG_READ_TOKEN")
     if not expected:
