@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "onco-cardiology-toxicity-engine"
 version = "2.0.0"
-description = "OncoCardio Sentinel: Anthracycline & Immune Checkpoint Myocarditis Risk Engine"
+description = "Deterministic synthetic-data rule demonstrator for software testing"
 readme = "README.md"
 authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
 license = { text = "MIT" }
@@ -13,8 +13,6 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering :: Medical Science Apps.",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 requires-python = ">=3.9"
 dependencies = ["pydantic>=2.7,<3"]
@@ -29,7 +27,7 @@ onco-cardio-agent = "cli:main"
 
 [project.urls]
 Homepage = "https://github.com/abusuraihsakhri/onco-cardiology-toxicity-agent"
-Repository = "https://github.com/abusuraihsakhri/onco-cardiology-toxicity-engine.git"
+Repository = "https://github.com/abusuraihsakhri/onco-cardiology-toxicity-agent.git"
 
 [tool.setuptools]
 py-modules = ["cli", "enrichment", "onco_cardio_sentinel", "simulator"]
