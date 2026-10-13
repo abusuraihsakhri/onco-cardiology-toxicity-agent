@@ -43,5 +43,5 @@ jobs:
         from agents.base import PHIGuard, AuditLogger
         import pytest
         assert AuditLogger.verify_integrity() is True
-        print("Audit signature check passed")
+        print('Audit signature check passed')
         "
