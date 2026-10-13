@@ -1,207 +1,104 @@
 # Onco Cardiology Toxicity Agent
 
-> **Domain:** Cardiovascular Medicine & Hemodynamic Analytics
-> **Reference Guidelines & Standards:** `AHA/ACC Practice Guidelines & ESC Clinical Standards`
+A Python rule-engine repository with a **standalone browser demonstrator**. It includes a FastAPI service, command-line evaluation and CSV batch processing, tests, and a separate legacy clinical-named module.
 
-<div align="center">
+> **Safety:** The current numeric thresholds are unitless demonstration constants, **not** validated cardiotoxicity criteria. This software must not be used to diagnose, risk-stratify, triage, or treat patients. Use synthetic data only.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi&logoColor=white)
-![Audit Trail](https://img.shields.io/badge/Audit-HMAC--SHA256_Tamper--Evident-brightgreen.svg)
-![Zero-PHI Guard](https://img.shields.io/badge/Guard-Zero--PHI_Outbound-blue.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)
+## Browser demonstrator
 
-</div>
+The standalone application is in [web/index.html](web/index.html). Open the file in an up-to-date browser to evaluate illustrative inputs and download a JSON summary. All computation runs locally; the page makes no HTTP API requests, stores no user inputs, and does not generate cryptographic audit records.
 
----
+A GitHub Pages deployment workflow is included in `.github/workflows/pages.yml`. **A public live application URL has not yet been verified.** GitHub Pages must be enabled with **GitHub Actions** as the build source for this repository before the workflow can publish the page.
 
-## 📖 What It Does
+The browser view is independent of the Python backend, which GitHub Pages cannot host.
 
-**Onco Cardiology Toxicity Agent** is an advanced analytical and computational platform implementing Cumulative Anthracycline & ICI Myocarditis Surveillance. It provides multi-agent clinical decision support for cardio-oncology risk stratification.
+## What the code does
 
----
+- `agents/workers.py`: three deterministic demonstration rules on a generic primary metric (>25), secondary metric (>12) or manual critical flag, and keyword-based status descriptors.
+- `agents/supervisor.py`: combines alerts and records an in-memory HMAC-SHA256 chained audit entry.
+- `agents/api.py`: FastAPI endpoints (`/health`, `/metrics`, `/api/audit`, `/api/chat`); `/metrics` returns **JSON**, not Prometheus exposition text.
+- `cli.py`: a single evaluation, local status query, CSV batch evaluation, and audit-chain verification.
+- `onco_cardiology_toxicity_agent/`: an additional older API/CLI with different demonstration thresholds (>20 and >10). Both implementations are preserved for compatibility. Their outputs are **not interchangeable** and neither is a validated clinical algorithm.
+- `onco_cardio_sentinel.py` and `enrichment.py`: separate legacy demonstration utilities.
 
-## ⚙️ Key Capabilities & Algorithmic Modules
+The names "dose tracker" and "troponin kinetics" do **not** imply the inputs are doxorubicin-equivalent dose, LVEF, ECG findings, or measured cardiac troponin. Those inputs lack the units, assay context, baseline, clinical features and risk framework needed for clinical interpretation.
 
-### 🔬 Core Algorithmic & Evaluation Engines
+For actual clinical guidance, consult the [2022 ESC Cardio-Oncology Guidelines](https://www.escardio.org/guidelines/clinical-practice-guidelines/all-esc-practice-guidelines/cardio-oncology/); the repository **does not implement their diagnostic or monitoring recommendations**.
 
-- **`Severity`** — dedicated module for severity evaluation and state verification.
-- **`DomainKnowledgeRegistry`**: Enterprise domain rules, guideline matrices, and evidence benchmarks.
-- **`AgentAlert`** — dedicated module for agent alert evaluation and state verification.
-- **`CumulativeDoseTrackerAgent`**: Specialized Sub-Agent 1 for onco-cardiology-toxicity-agent
-- **`TroponinKineticsAgent`**: Specialized Sub-Agent 2 for onco-cardiology-toxicity-agent
-- **`MyocarditisRiskStratifierAgent`**: Specialized Sub-Agent 3 for onco-cardiology-toxicity-agent
+## Install and run
 
----
+Requires Python 3.9+; tests are run in CI with Python 3.10–3.12.
 
-## 🚀 Installation
-
-### Prerequisites
-- Python 3.9 or higher
-- pip package manager
-
-### Setup
 ```bash
-# Clone the repository
 git clone https://github.com/abusuraihsakhri/onco-cardiology-toxicity-agent.git
 cd onco-cardiology-toxicity-agent
+python -m pip install -e ".[server,test]"
 
-# Install dependencies
-pip install fastapi uvicorn pydantic pytest
+# Required for the Python supervisor and API; use a unique, private key.
+export AUDIT_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
 
-# Set required environment variable
-export AUDIT_SECRET_KEY="your-secure-audit-key-min-16-chars"
+# Deterministic example, with synthetic identifiers only
+onco-cardio-agent audit --task-id EXAMPLE-1 --target SYNTH-1 \
+  --primary 28 --secondary 5 --status NOMINAL
+
+# Run local HTTP server
+onco-cardio-agent serve --host 127.0.0.1 --port 8000
 ```
 
-### Docker Deployment
-```bash
-# Create .env file with required variables
-echo "AUDIT_SECRET_KEY=your-secure-audit-key-min-16-chars" > .env
+The API documentation is available at `http://127.0.0.1:8000/docs` when the local server is running.
 
-# Build and run
-docker-compose up --build
-```
-
----
-
-## 💻 CLI Quickstart & Usage
-
-### 1. Guided Interactive Mode
-```bash
-python cli.py
-```
-
-### 2. Direct Parameterized Evaluation
-```bash
-python cli.py --task-id <value> --target <value> --primary <value> --secondary <value>
-```
-
-### 3. Available Commands
-
-| Command | Description |
-|:--------|:------------|
-| `audit` | Run single task evaluation |
-| `chat` | System configuration query |
-| `batch` | Batch process CSV records |
-| `verify-audit` | Verify HMAC audit trail integrity |
-| `serve` | Launch FastAPI REST server |
-
-### Parameter Reference
-- `--task-id`: Specifies input measurement or parameter value.
-- `--target`: Specifies input measurement or parameter value.
-- `--primary`: Specifies input measurement or parameter value.
-- `--secondary`: Specifies input measurement or parameter value.
-- `--critical`: Specifies input measurement or parameter value.
-- `--status`: Specifies input measurement or parameter value.
-- `--input`: Specifies input measurement or parameter value.
-- `--output`: Specifies input measurement or parameter value.
-
-### Input Data Schema
-
-| Field | Description | Requirement |
-|:------|:------------|:------------|
-| `case_id` | Parameter / observation metric | Required |
-| `patient_synthetic_id` | Parameter / observation metric | Required |
-| `metric_primary` | Parameter / observation metric | Required |
-| `metric_secondary` | Parameter / observation metric | Required |
-| `is_stat` | Parameter / observation metric | Required |
-| `status_flag` | Parameter / observation metric | Required |
-
----
-
-## 🛡️ Security & Enterprise Architecture
-
-* **Zero-PHI Outbound Interceptor:** Active AST and regex inspection blocking SSNs, MRNs, phone numbers, and patient identifiers.
-* **Tamper-Evident HMAC-SHA256 Audit Trail:** Chained, cryptographically signed logs for every evaluation and state transition.
-* **Air-Gapped LLM Reasoning Adapter:** Agnostic integration for local Ollama instances (`llama3`, `mistral`), Claude 3.5 Sonnet, GPT-4o, and deterministic test mocks.
-* **Active Learning Bayesian Calibration:** Dynamic tracker updating worker reliability weights and monitoring Brier calibration drift.
-* **FastAPI & Prometheus Telemetry:** Exposes OpenAPI 3.1 REST endpoints and operational Prometheus metrics (`/metrics`).
-
-### Security Requirements
-
-**IMPORTANT:** The `AUDIT_SECRET_KEY` environment variable is required to run this application. This key is used to sign the HMAC-SHA256 audit trail.
+### CSV batch processing
 
 ```bash
-# Minimum 16 characters required
-export AUDIT_SECRET_KEY="your-secure-audit-key-min-16-chars"
+onco-cardio-agent batch --input input.csv --output results.csv
 ```
 
----
+Example input columns:
 
-## 🧪 Testing & Verification
+```csv
+task_id,target_identifier,primary_metric,secondary_metric,status_descriptor,is_critical_flag
+SYN-001,TEST-01,28,5,NOMINAL,false
+SYN-002,TEST-02,10,14,DISCORDANT,true
+```
 
-Run the automated test suite:
+A separate legacy script uses different columns:
 
 ```bash
-# Set test environment variable
-export AUDIT_SECRET_KEY="test-audit-secret-key-2026-secure"
-
-# Run all tests
-pytest -v
+python onco_cardio_sentinel.py batch --input sample.csv --output results.csv
 ```
 
-Execute high-throughput batch simulation benchmarks:
+## Audit and security limitations
+
+The Python supervisor requires `AUDIT_SECRET_KEY` (minimum 16 characters) for HMAC chaining. Integrity verification recomputes each signature as well as checking chain links. The log is **in memory**: it is neither persistently stored nor guaranteed complete after a process restart. It must not be described as a production-compliant audit system.
+
+The regular-expression identifier detector catches some recognizable identifiers but **cannot de-identify or certify data as HIPAA-compliant**. Do not submit real patient identifiers or other sensitive information. The API returns identifiers supplied in synthetic test requests.
+
+The `/api/audit/logs` endpoint is disabled unless `AUDIT_LOG_READ_TOKEN` is configured. When enabled, callers must provide an `X-Audit-Token` request header with that value. Do not expose either key or token in browser-side source. HTTPS, independent authentication, authorization, durable audit storage, clinical validation, and privacy review are required before any real-world deployment.
+
+The mock chat adapter returns static local text; the provider names in `agents/llm_factory.py` are not functional integrations with external language models.
+
+## Docker
 
 ```bash
-python simulator.py --tasks 1000 --concurrency 8
+# Supply a private, randomly generated key in an ignored .env file.
+printf 'AUDIT_SECRET_KEY=%s\n' "$(python -c 'import secrets; print(secrets.token_urlsafe(32))')" > .env
+docker compose up --build
 ```
 
-### Test Coverage
+The Docker image runs the FastAPI server on port 8000 and is independent of GitHub Pages.
 
-- **PHI Guard Enforcement:** Validates zero-PHI outbound interceptor
-- **Specialized Workers:** Tests all three sub-agent evaluation engines
-- **Supervisor Consensus:** Validates multi-agent consensus and audit trail
-- **Clinical Module:** Tests clinical decision support components
-- **API Endpoints:** Validates FastAPI REST endpoints
-- **Enrichment Suite:** Tests domain enrichment features
-
----
-
-## 🐳 Container Deployment
+## Testing
 
 ```bash
-docker build -t onco-cardiology-toxicity-agent .
-docker run -p 8000:8000 -e AUDIT_SECRET_KEY="your-secure-key" onco-cardiology-toxicity-agent
+python -m compileall -q agents onco_cardiology_toxicity_agent cli.py enrichment.py onco_cardio_sentinel.py simulator.py
+python -m pytest -q
+python simulator.py 100
 ```
 
----
+The test suite covers the existing rule outputs, API endpoints, field validation, regex guard, and HMAC tampering detection. These are **software regression tests, not external clinical validation**.
 
-## 📁 Project Structure
+## Technology and license
 
-```
-onco-cardiology-toxicity-agent/
-├── agents/                          # Enterprise agent modules
-│   ├── api.py                       # FastAPI REST API
-│   ├── base.py                      # Security, PHI guard, audit trail
-│   ├── learning.py                  # Bayesian calibration engine
-│   ├── llm_factory.py               # LLM provider factory
-│   ├── metrics.py                   # Prometheus metrics
-│   ├── models.py                    # Pydantic data models
-│   ├── streamer.py                  # WebSocket telemetry
-│   ├── supervisor.py                # Multi-agent orchestrator
-│   └── workers.py                   # Specialized worker agents
-├── onco_cardiology_toxicity_agent/  # Clinical module
-│   ├── agents.py                    # Clinical sub-agents
-│   ├── cli.py                       # Clinical CLI
-│   ├── engine.py                    # Clinical decision engine
-│   ├── models.py                    # Clinical data models
-│   └── server.py                    # Clinical FastAPI server
-├── tests/                           # Test suite
-│   ├── test_api.py                  # API endpoint tests
-│   ├── test_clinical_module.py      # Clinical module tests
-│   ├── test_enrichment.py           # Enrichment tests
-│   └── test_onco_cardiology_toxicity_agent.py  # Core tests
-├── cli.py                           # Main CLI entry point
-├── enrichment.py                    # Domain enrichment features
-├── simulator.py                     # High-throughput simulator
-├── pyproject.toml                   # Project configuration
-├── Dockerfile                       # Container build
-└── docker-compose.yml               # Container orchestration
-```
+Python 3.9+, Pydantic 2, FastAPI, Uvicorn, pytest, standard HTML/CSS/JavaScript, Docker, and GitHub Actions. The browser page targets current Chromium, Firefox, and Safari engines and does not require Pyodide or a backend.
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Licensed under the [MIT License](LICENSE).
