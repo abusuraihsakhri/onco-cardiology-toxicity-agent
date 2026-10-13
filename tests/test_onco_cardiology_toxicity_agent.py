@@ -13,7 +13,7 @@ os.environ.setdefault("AUDIT_SECRET_KEY", "test-audit-secret-key-2026-secure")
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
-from agents.base import PHIGuard, AuditLogger, SecurityException
+from agents.base import PHIGuard, AuditLogger, SecurityException, AuditTrail
 from agents.models import SystemTaskPayload, UrgencyLevel, SystemIntegrityStatus
 from agents.workers import InvariantQCWorker, SafetyEscalationWorker, ProtocolConformanceWorker
 from agents.supervisor import SystemSupervisor
@@ -68,3 +68,19 @@ def test_supervisor_consensus_and_audit():
     assert main(["audit", "--task-id", "CLI-TEST-01"]) == 0
     assert main(["chat", "Explain", "specifications"]) == 0
     assert main(["verify-audit"]) == 0
+
+
+def test_hmac_verification_detects_tampering_and_snapshots_are_independent():
+    audit = AuditTrail(secret_key="unit-test-audit-key-long-enough")
+    audit.log("supervisor", "test", "ONE", {"case": "SYN-1"})
+    audit.log("supervisor", "test", "TWO", {"case": "SYN-2"})
+    assert audit.verify_integrity()
+    snapshot = audit.get_trail()
+    snapshot[0]["actor"] = "modified-copy"
+    assert audit.verify_integrity()
+    audit.logs[0]["actor"] = "tampered"
+    assert not audit.verify_integrity()
+    audit.logs[0]["actor"] = "supervisor"
+    assert audit.verify_integrity()
+    audit.logs[-1]["payload_hash"] = "0" * 64
+    assert not audit.verify_integrity()

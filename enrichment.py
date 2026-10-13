@@ -31,6 +31,8 @@ class OverviewEngine:
         self.history: List[OverviewEngineResult] = []
 
     def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> OverviewEngineResult:
+        if not all(math.isfinite(float(v)) for v in (primary_value, secondary_value)):
+            raise ValueError("enrichment metrics must be finite")
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -39,13 +41,13 @@ class OverviewEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Overview: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative threshold alert only; no clinical escalation is implied.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Overview: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Review synthetic inputs; no clinical monitoring recommendation is implied.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("No illustrative threshold exceeded; no clinical conclusion can be drawn.")
 
         res = OverviewEngineResult(
             feature_name="Overview",
@@ -81,6 +83,8 @@ class CardiotoxicitySurveillanceSchedulingEchocardiogramIntervalsEngine:
         self.history: List[CardiotoxicitySurveillanceSchedulingEchocardiogramIntervalsEngineResult] = []
 
     def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> CardiotoxicitySurveillanceSchedulingEchocardiogramIntervalsEngineResult:
+        if not all(math.isfinite(float(v)) for v in (primary_value, secondary_value)):
+            raise ValueError("enrichment metrics must be finite")
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -89,13 +93,13 @@ class CardiotoxicitySurveillanceSchedulingEchocardiogramIntervalsEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Cardiotoxicity Surveillance Scheduling (Echocardiogram Intervals): Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative threshold alert only; no clinical escalation is implied.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Cardiotoxicity Surveillance Scheduling (Echocardiogram Intervals): Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Review synthetic inputs; no clinical monitoring recommendation is implied.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("No illustrative threshold exceeded; no clinical conclusion can be drawn.")
 
         res = CardiotoxicitySurveillanceSchedulingEchocardiogramIntervalsEngineResult(
             feature_name="Cardiotoxicity Surveillance Scheduling (Echocardiogram Intervals)",
@@ -131,6 +135,8 @@ class GoalEngine:
         self.history: List[GoalEngineResult] = []
 
     def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> GoalEngineResult:
+        if not all(math.isfinite(float(v)) for v in (primary_value, secondary_value)):
+            raise ValueError("enrichment metrics must be finite")
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -139,13 +145,13 @@ class GoalEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Goal: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative threshold alert only; no clinical escalation is implied.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Goal: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Review synthetic inputs; no clinical monitoring recommendation is implied.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("No illustrative threshold exceeded; no clinical conclusion can be drawn.")
 
         res = GoalEngineResult(
             feature_name="Goal",
@@ -181,6 +187,8 @@ class DataModelChangesEngine:
         self.history: List[DataModelChangesEngineResult] = []
 
     def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> DataModelChangesEngineResult:
+        if not all(math.isfinite(float(v)) for v in (primary_value, secondary_value)):
+            raise ValueError("enrichment metrics must be finite")
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -189,13 +197,13 @@ class DataModelChangesEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Data Model Changes: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative threshold alert only; no clinical escalation is implied.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Data Model Changes: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Review synthetic inputs; no clinical monitoring recommendation is implied.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("No illustrative threshold exceeded; no clinical conclusion can be drawn.")
 
         res = DataModelChangesEngineResult(
             feature_name="Data Model Changes",
@@ -231,6 +239,8 @@ class KnowledgeBaseEngine:
         self.history: List[KnowledgeBaseEngineResult] = []
 
     def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> KnowledgeBaseEngineResult:
+        if not all(math.isfinite(float(v)) for v in (primary_value, secondary_value)):
+            raise ValueError("enrichment metrics must be finite")
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -239,13 +249,13 @@ class KnowledgeBaseEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Knowledge Base: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative threshold alert only; no clinical escalation is implied.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Knowledge Base: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Review synthetic inputs; no clinical monitoring recommendation is implied.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("No illustrative threshold exceeded; no clinical conclusion can be drawn.")
 
         res = KnowledgeBaseEngineResult(
             feature_name="Knowledge Base",
@@ -281,6 +291,8 @@ class AgentChangesEngine:
         self.history: List[AgentChangesEngineResult] = []
 
     def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> AgentChangesEngineResult:
+        if not all(math.isfinite(float(v)) for v in (primary_value, secondary_value)):
+            raise ValueError("enrichment metrics must be finite")
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -289,13 +301,13 @@ class AgentChangesEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Agent Changes: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative threshold alert only; no clinical escalation is implied.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Agent Changes: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Review synthetic inputs; no clinical monitoring recommendation is implied.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("No illustrative threshold exceeded; no clinical conclusion can be drawn.")
 
         res = AgentChangesEngineResult(
             feature_name="Agent Changes",
@@ -331,6 +343,8 @@ class PrioritizeByRiskLevelEngine:
         self.history: List[PrioritizeByRiskLevelEngineResult] = []
 
     def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> PrioritizeByRiskLevelEngineResult:
+        if not all(math.isfinite(float(v)) for v in (primary_value, secondary_value)):
+            raise ValueError("enrichment metrics must be finite")
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -339,13 +353,13 @@ class PrioritizeByRiskLevelEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Prioritize by risk level: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative threshold alert only; no clinical escalation is implied.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Prioritize by risk level: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Review synthetic inputs; no clinical monitoring recommendation is implied.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("No illustrative threshold exceeded; no clinical conclusion can be drawn.")
 
         res = PrioritizeByRiskLevelEngineResult(
             feature_name="Prioritize by risk level",
@@ -381,6 +395,8 @@ class ApiChangesEngine:
         self.history: List[ApiChangesEngineResult] = []
 
     def evaluate(self, primary_value: float, secondary_value: float = 0.0, **kwargs) -> ApiChangesEngineResult:
+        if not all(math.isfinite(float(v)) for v in (primary_value, secondary_value)):
+            raise ValueError("enrichment metrics must be finite")
         alerts = []
         recs = []
         status = "OPTIMAL"
@@ -389,13 +405,13 @@ class ApiChangesEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"API Changes: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Illustrative threshold alert only; no clinical escalation is implied.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"API Changes: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Review synthetic inputs; no clinical monitoring recommendation is implied.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("No illustrative threshold exceeded; no clinical conclusion can be drawn.")
 
         res = ApiChangesEngineResult(
             feature_name="API Changes",

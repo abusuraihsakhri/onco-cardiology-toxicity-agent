@@ -10,19 +10,19 @@ coordinator = OncoCardioCoordinator()
 def create_app():
     try:
         from fastapi import FastAPI
-        from pydantic import BaseModel
+        from pydantic import BaseModel, Field
 
         app = FastAPI(
             title="OncoCardio Sentinel: Anthracycline & Immune Checkpoint Myocarditis Risk Agent",
-            description="Monitors cumulative doxorubicin equivalent doses (mg/m2), baseline LVEF drops, and ICI-mediated myocarditis troponin/ECG trajectories.",
+            description="Synthetic, unitless demo values only; does not validate or implement clinical guidelines.",
             version="2.0.0-PRO",
         )
 
         class AuditRequest(BaseModel):
             case_id: str = "CASE-2026-001"
             patient_synthetic_id: str = "SYNTH-PT-881"
-            primary_metric: float = 24.5
-            secondary_metric: float = 14.0
+            primary_metric: float = Field(default=24.5, allow_inf_nan=False)
+            secondary_metric: float = Field(default=14.0, allow_inf_nan=False)
             status_flag: str = "DISCORDANT"
             is_stat: bool = True
             clinical_notes: str = ""

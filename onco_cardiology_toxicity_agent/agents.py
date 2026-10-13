@@ -93,7 +93,7 @@ class OncoCardioCoordinator:
             "stat_critical_alerts": stat_count,
             "warning_alerts": warn_count,
             "alerts": [a.to_dict() for a in all_alerts],
-            "guideline_standard": "ESC 2022 Cardio-Oncology Guidelines",
+            "guideline_standard": "Illustrative local rules (not validated clinical criteria)",
             "consensus_summary": f"Multi-agent supervision completed across 3 sub-agents with status [{status.value}].",
         }
 
@@ -105,6 +105,6 @@ class OncoCardioCoordinator:
         if "status" in q or "summary" in q:
             return f"OncoCardio Sentinel: Anthracycline & Immune Checkpoint Myocarditis Risk Agent currently tracking {len(self.case_registry)} cases in on-premises memory."
         elif "guideline" in q or "standard" in q:
-            return "Active clinical surveillance operates under ESC 2022 Cardio-Oncology Guidelines validated protocols."
+            return "This demonstration is not an implementation or validation of ESC clinical algorithms."
         else:
             return f"OncoCardio Sentinel: Anthracycline & Immune Checkpoint Myocarditis Risk Agent executive agent online. Zero-PHI air-gapped monitoring active."

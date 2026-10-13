@@ -1,4 +1,4 @@
-name: Onco Cardiology Toxicity Engine CI/CD & Security Verification
+name: Python tests and security checks
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
 jobs:
   test-and-audit:
     runs-on: ubuntu-latest
+    env:
+      AUDIT_SECRET_KEY: "ci-only-test-key-for-audit-signing-2026"
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
@@ -24,17 +26,29 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install fastapi uvicorn pydantic pytest
+        pip install -e ".[server,test]"
+
+    - name: Check Python syntax and installed CLI
+      run: |
+        python -m compileall -q agents onco_cardiology_toxicity_agent cli.py enrichment.py onco_cardio_sentinel.py simulator.py
+        onco-cardio-agent audit --task-id CI-SMOKE --target SYNTH-CI --primary 1 --secondary 1 --status NOMINAL
+
+    - name: Validate browser JavaScript syntax
+      run: |
+        node -e 'const fs=require("fs"),vm=require("vm"); const h=fs.readFileSync("web/index.html","utf8"); new vm.Script(h.split("<script>")[1].split("</script>")[0]);'
 
     - name: Run Pytest Suite
       run: |
-        pytest -v
+        pytest -q
 
-    - name: Security SAST & Zero-PHI Audit
+    - name: Audit signature verification
       run: |
         python -c "
-        from agents.base import PHIGuard, AuditLogger
-        import pytest
-        assert AuditLogger.verify_integrity() is True
-        print('Security & Zero-PHI Audit Passed!')
+        from agents.base import AuditTrail
+        audit = AuditTrail()
+        audit.log('ci', 'test', 'VERIFY', {'sample':'synthetic'})
+        assert audit.verify_integrity()
+        audit.logs[0]['event_type'] = 'tampered'
+        assert not audit.verify_integrity()
+        print('Audit signing and tamper detection verified')
         "

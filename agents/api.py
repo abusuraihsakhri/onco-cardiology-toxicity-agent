@@ -1,8 +1,10 @@
 """
 FastAPI REST API Server for Onco Cardiology Toxicity Agent.
 """
-from typing import Dict, Any, List
-from fastapi import FastAPI, HTTPException
+from typing import Dict, Any, List, Optional
+import os
+import hmac
+from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from .base import AuditLogger, PHIGuard, SecurityException
 from .models import SystemTaskPayload, ConsensusDossier
@@ -12,7 +14,7 @@ supervisor = SystemSupervisor(model_provider="mock")
 
 app = FastAPI(
     title="Onco Cardiology Toxicity Agent API",
-    description="Enterprise Distributed Component Platform (Cardiology & Intensive Care Systems)",
+    description="Synthetic-data rule demonstrator; not for clinical decisions.",
     version="3.0.0-ENTERPRISE",
 )
 
@@ -23,7 +25,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "HEALTHY", "service": "onco-cardiology-toxicity-agent", "domain": "Cardiology & Intensive Care Systems", "standard": "AHA/ACC Guidelines / Surviving Sepsis Campaign", "version": "3.0.0-ENTERPRISE"}
+    return {"status": "HEALTHY", "service": "onco-cardiology-toxicity-agent", "domain": "Illustrative rule demonstration", "standard": "Not clinically validated", "version": "3.0.0-ENTERPRISE"}
 
 
 @app.get("/metrics")
@@ -49,10 +51,16 @@ def api_chat(req: ChatRequest):
     try:
         ans = supervisor.query_supervisory_chat(req.query)
         return {"response": ans}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except SecurityException:
+        raise HTTPException(status_code=400, detail="Request contains a potential identifier")
 
 
 @app.get("/api/audit/logs")
-def api_audit_logs():
+def api_audit_logs(x_audit_token: Optional[str] = Header(default=None)):
+    """Restrict ledger access to an explicitly configured read token."""
+    expected = os.getenv("AUDIT_LOG_READ_TOKEN")
+    if not expected:
+        raise HTTPException(status_code=404, detail="Audit log access is disabled")
+    if not x_audit_token or not hmac.compare_digest(x_audit_token, expected):
+        raise HTTPException(status_code=403, detail="Invalid audit log token")
     return {"audit_trail": AuditLogger.get_trail(), "verified": AuditLogger.verify_integrity()}

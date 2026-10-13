@@ -33,5 +33,28 @@ def test_cli():
 
 def test_domain_registry():
     from onco_cardio_sentinel import DomainKnowledgeRegistry
-    assert DomainKnowledgeRegistry.ZERO_PHI_COMPLIANCE is True
+    assert DomainKnowledgeRegistry.ZERO_PHI_COMPLIANCE is False
     assert "PRO" in DomainKnowledgeRegistry.SYSTEM_VERSION
+
+
+def test_legacy_csv_false_flags_and_status_aliases(tmp_path):
+    import csv
+    from onco_cardio_sentinel import TroponinKineticsAgent, MyocarditisRiskStratifierAgent
+    worker = TroponinKineticsAgent()
+    assert worker.evaluate({"metric_secondary": "5", "critical_flag": "False"}) == []
+    assert len(MyocarditisRiskStratifierAgent().evaluate({"status_flag": "DISCORDANT"})) == 1
+
+    src = tmp_path / "example.csv"
+    out = tmp_path / "output.csv"
+    src.write_text(
+        "case_id,metric_primary,metric_secondary,is_stat,status_flag\n"
+        "C1,10,5,False,NORMAL\n"
+        "C2,10,5,True,DISCORDANT\n",
+        encoding="utf-8",
+    )
+    assert main(["batch", "--input", str(src), "--output", str(out)]) == 0
+    with out.open(newline="", encoding="utf-8") as stream:
+        rows = list(csv.DictReader(stream))
+    assert len(rows) == 2
+    assert rows[0]["critical_count"] == "0"
+    assert rows[1]["critical_count"] == "1"
