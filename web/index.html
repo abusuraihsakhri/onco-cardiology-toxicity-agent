@@ -1,236 +1,159 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Onco Cardiology Toxicity Engine — Operations Console</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #090d16;
-            --card: #111827;
-            --border: #1f293d;
-            --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.25);
-            --text: #f3f4f6;
-            --text-muted: #9ca3af;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            padding: 2rem;
-            min-height: 100vh;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .header-title h1 { font-size: 1.6rem; font-weight: 700; color: #fff; }
-        .header-title p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
-        .badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: var(--accent-glow);
-            color: var(--accent);
-            border: 1px solid var(--accent);
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 1.5rem;
-        }
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        .card h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
-        input, select, textarea {
-            width: 100%;
-            padding: 0.65rem 0.9rem;
-            background: #0d1322;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: #fff;
-            font-family: inherit;
-            font-size: 0.9rem;
-        }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
-        .btn {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 0.7rem 1.4rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            width: 100%;
-        }
-        .btn:hover { background: #2563eb; }
-        .terminal {
-            background: #060911;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: #10b981;
-            height: 380px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-        }
-        .metrics-bar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .metric-box {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-        }
-        .metric-val { font-size: 1.4rem; font-weight: 700; color: #fff; margin-top: 0.25rem; }
-        .metric-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>OncoCardio — Rule Demonstrator</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#e9eff8;background:#0b1220}
+    *{box-sizing:border-box}body{margin:0;padding:24px}main{max-width:1100px;margin:auto}
+    header{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:1px solid #344255;padding:8px 0 22px}
+    h1{font-size:1.75rem;margin:0 0 8px}h2{font-size:1.15rem;margin:0 0 18px}p{line-height:1.55;color:#b9c7d9}header p{margin:0}
+    .tag{border:1px solid #426082;border-radius:99px;padding:8px 12px;color:#c8d9ff;font-size:.8rem;white-space:nowrap}
+    .notice{border-left:4px solid #fbbf24;padding:14px 18px;background:#1f2531;margin:24px 0;line-height:1.55}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px}
+    section{border:1px solid #2c3a50;border-radius:14px;padding:22px;background:#121e30}
+    label{display:block;margin:14px 0 6px;color:#d7e2f2;font-size:.92rem}
+    input:not([type=checkbox]),select{width:100%;background:#091422;color:#f3f7ff;border:1px solid #60748c;border-radius:8px;padding:12px;font:inherit}
+    input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+    .check{display:flex;gap:10px;align-items:center;margin:18px 0}.check label{margin:0}
+    input[type=checkbox]{width:20px;height:20px;accent-color:#60a5fa}
+    .buttons{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+    button{background:#2563eb;color:white;border:0;border-radius:8px;padding:12px 18px;font:inherit;font-weight:650;cursor:pointer}
+    button.secondary{background:#2f405a}button:hover{filter:brightness(1.12)}
+    .meta{display:flex;gap:18px;color:#b9c7d9;font-size:.85rem;margin:0 0 12px}
+    pre{background:#08111e;border:1px solid #344255;border-radius:10px;padding:16px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;min-height:270px;font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:#bdf7d4}
+    .footnote{font-size:.87rem}footer{font-size:.84rem;margin:22px 0;color:#9fb0c5}
+    a{color:#93c5fd}ul{line-height:1.7;color:#c0cee1;padding-left:20px}
+    @media(max-width:760px){body{padding:14px}header{flex-direction:column;gap:12px}.layout{grid-template-columns:1fr}section{padding:18px}}
+  </style>
 </head>
 <body>
-
-    <div class="header">
-        <div class="header-title">
-            <h1>Onco Cardiology Toxicity Engine</h1>
-            <p>Domain: Clinical & Cryptographic AI | Standard: CAP / CLSI / NIST Standards | LabMind-Atlas Architecture</p>
+<main>
+  <header>
+    <div><h1>OncoCardio Rule Demonstrator</h1>
+      <p>Explore the repository's deterministic three-worker rule logic in your browser.</p></div>
+    <span class="tag">Local browser demonstration</span>
+  </header>
+  <div class="notice" role="note">
+    <strong>Educational software only — not clinical decision support.</strong>
+    The inputs are <strong>unitless example metrics</strong>, not anthracycline dose, LVEF, or troponin.
+    The thresholds below are illustrative and have <strong>not</strong> been validated against ESC, AHA/ACC,
+    or other clinical guidelines. Do not enter patient information or use these results for diagnosis,
+    treatment, or clinical triage.
+  </div>
+  <div class="layout">
+    <section aria-labelledby="inputs-heading">
+      <h2 id="inputs-heading">Demonstration inputs</h2>
+      <form id="demo-form">
+        <label for="primary">Primary example metric</label>
+        <input id="primary" type="number" required step="any" value="29.4">
+        <label for="secondary">Secondary example metric</label>
+        <input id="secondary" type="number" required step="any" value="14.8">
+        <label for="status">Descriptor</label>
+        <select id="status">
+          <option value="NOMINAL">NOMINAL</option>
+          <option value="DISCORDANT" selected>DISCORDANT</option>
+          <option value="ANOMALY">ANOMALY</option>
+          <option value="REVIEW">REVIEW</option>
+        </select>
+        <div class="check"><input type="checkbox" id="critical"><label for="critical">Manually set critical flag</label></div>
+        <div class="buttons">
+          <button type="submit">Evaluate example</button>
+          <button type="button" class="secondary" id="reset">Reset inputs</button>
+          <button type="button" class="secondary" id="export" disabled>Save JSON</button>
         </div>
-        <div>
-            <span class="badge">Air-Gapped Active</span>
-            <span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border-color: #10b981;">Zero-PHI Guard Active</span>
-        </div>
-    </div>
-
-    <div class="metrics-bar">
-        <div class="metric-box">
-            <div class="metric-label">System Status</div>
-            <div class="metric-val" style="color: var(--success);" id="m-status">OPTIMAL</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">Tasks Processed</div>
-            <div class="metric-val" id="m-tasks">142</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">Audit Blocks Signed</div>
-            <div class="metric-val" id="m-audit">142</div>
-        </div>
-        <div class="metric-box">
-            <div class="metric-label">PHI Interceptions</div>
-            <div class="metric-val" style="color: var(--accent);" id="m-phi">0</div>
-        </div>
-    </div>
-
-    <div class="grid">
-        <div class="card">
-            <h2>⚙️ Dispatch Distributed Component Audit</h2>
-            <div class="form-group">
-                <label>Task / Sample ID</label>
-                <input type="text" id="task_id" value="TASK-2026-LIVE-01">
-            </div>
-            <div class="form-group">
-                <label>Target Identifier</label>
-                <input type="text" id="target_id" value="SPECIMEN-ALPHA-77">
-            </div>
-            <div class="form-group">
-                <label>Primary Measurement / Value</label>
-                <input type="number" id="primary_metric" value="29.4" step="0.1">
-            </div>
-            <div class="form-group">
-                <label>Secondary Metric / Kinetic Index</label>
-                <input type="number" id="secondary_metric" value="14.8" step="0.1">
-            </div>
-            <div class="form-group">
-                <label>Status / Phenotype Descriptor</label>
-                <input type="text" id="status_descriptor" value="DISCORDANT_ANOMALY">
-            </div>
-            <div class="form-group">
-                <label><input type="checkbox" id="is_critical" checked> Trigger Emergency / Critical Flag</label>
-            </div>
-            <button class="btn" onclick="runAudit()">Execute Distributed Component Audit</button>
-        </div>
-
-        <div class="card">
-            <h2>📊 Real-Time Consensus Dossier & Audit Log</h2>
-            <div class="terminal" id="outputConsole">// Onco Cardiology Toxicity Engine Operations Console Ready
-// Connection established with Air-Gapped Supervisor
-// Cryptographic HMAC-SHA256 audit ledger loaded.
-// Ready for live task payload dispatch...</div>
-        </div>
-    </div>
-
-    <script>
-        async function runAudit() {
-            const consoleEl = document.getElementById('outputConsole');
-            consoleEl.innerText = "// Dispatching task across specialized workers...
-// Invoking InvariantQCWorker, SafetyEscalationWorker, ProtocolWorker...";
-
-            const payload = {
-                task_id: document.getElementById('task_id').value,
-                target_identifier: document.getElementById('target_id').value,
-                primary_metric: parseFloat(document.getElementById('primary_metric').value),
-                secondary_metric: parseFloat(document.getElementById('secondary_metric').value),
-                status_descriptor: document.getElementById('status_descriptor').value,
-                is_critical_flag: document.getElementById('is_critical').checked
-            };
-
-            try {
-                const res = await fetch('/api/audit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                consoleEl.innerText = JSON.stringify(data, null, 2);
-                document.getElementById('m-tasks').innerText = parseInt(document.getElementById('m-tasks').innerText) + 1;
-                document.getElementById('m-audit').innerText = parseInt(document.getElementById('m-audit').innerText) + 1;
-            } catch (err) {
-                consoleEl.innerText = "// Offline / Simulation Output:\n" + JSON.stringify({
-                    dossier_id: "DOSSIER-SIM-" + Math.floor(Math.random()*10000),
-                    system: "onco-cardiology-toxicity-engine",
-                    domain: "Clinical & Cryptographic AI",
-                    task_id: payload.task_id,
-                    overall_urgency: payload.is_critical_flag ? "CRITICAL_STAT_PANIC" : "ELEVATED_RISK",
-                    integrity_status: "DISCORDANT_ANOMALY",
-                    alerts: [
-                        { worker: "InvariantQCWorker", alert: "Primary metric exceeds upper reference bound" },
-                        { worker: "SafetyEscalationWorker", alert: "Critical emergency interlock flag active" }
-                    ],
-                    audit_hash: "HMAC_SHA256_e83f9a72b941d6c381f9"
-                }, null, 2);
-            }
-        }
-    </script>
+      </form>
+      <p class="footnote">All calculations execute locally in JavaScript. This page makes no API calls, stores no inputs, and generates no audit signature.</p>
+    </section>
+    <section aria-labelledby="results-heading">
+      <h2 id="results-heading">Demonstration result</h2>
+      <div class="meta"><span>Runs this session: <strong id="runs">0</strong></span><span id="summary">No evaluation yet</span></div>
+      <pre id="result" aria-live="polite">Select “Evaluate example” to inspect which illustrative rules fire.</pre>
+      <p class="footnote">This output is not a medical assessment or an authenticated audit record.</p>
+    </section>
+  </div>
+  <section style="margin-top:20px" aria-labelledby="rules-heading">
+    <h2 id="rules-heading">Rule definitions</h2>
+    <ul>
+      <li>InvariantQCWorker: elevated when the unitless primary metric is above 25.</li>
+      <li>SafetyEscalationWorker: critical when the manual flag is set; otherwise elevated when the unitless secondary metric is above 12.</li>
+      <li>ProtocolConformanceWorker: elevated for descriptors containing DISCORDANT, ANOMALY, MUTANT, VIOLATION, FAIL, or REJECT.</li>
+      <li>The highest triggered tier determines the overall demonstration status. No alerts means ROUTINE.</li>
+    </ul>
+    <p class="footnote">The separate Python API and CLI provide additional audit and batch capabilities, requiring a server and a configured audit key. Those services do not run on GitHub Pages.</p>
+  </section>
+  <footer>Source: <a href="https://github.com/abusuraihsakhri/onco-cardiology-toxicity-agent">onco-cardiology-toxicity-agent</a> · MIT License</footer>
+</main>
+<script>
+(function () {
+  "use strict";
+  const form = document.getElementById("demo-form");
+  const output = document.getElementById("result");
+  const summary = document.getElementById("summary");
+  const count = document.getElementById("runs");
+  const save = document.getElementById("export");
+  let runs = 0;
+  let last = null;
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const primary = Number(document.getElementById("primary").value);
+    const secondary = Number(document.getElementById("secondary").value);
+    if (!Number.isFinite(primary) || !Number.isFinite(secondary)) {
+      summary.textContent = "Invalid input";
+      output.textContent = "Enter two finite numeric values.";
+      save.disabled = true;
+      return;
+    }
+    const descriptor = document.getElementById("status").value;
+    const critical = document.getElementById("critical").checked;
+    const alerts = [];
+    if (primary > 25) {
+      alerts.push({worker:"InvariantQCWorker",urgency:"ELEVATED_RISK",
+        finding:"Primary example metric exceeds illustrative threshold of 25."});
+    }
+    if (critical || secondary > 12) {
+      alerts.push({worker:"SafetyEscalationWorker",urgency:critical?"CRITICAL_STAT_PANIC":"ELEVATED_RISK",
+        finding:critical?"Manual critical flag is active.":"Secondary example metric exceeds illustrative threshold of 12."});
+    }
+    if (["DISCORDANT","ANOMALY","MUTANT","VIOLATION","FAIL","REJECT"].some(function (term) {
+      return descriptor.includes(term);
+    })) {
+      alerts.push({worker:"ProtocolConformanceWorker",urgency:"ELEVATED_RISK",
+        finding:"Descriptor matched a demonstration review keyword."});
+    }
+    const urgency = alerts.some(function(a){return a.urgency==="CRITICAL_STAT_PANIC";})
+      ? "CRITICAL_STAT_PANIC" : (alerts.length ? "ELEVATED_RISK" : "ROUTINE");
+    last = {mode:"local_illustrative_demo",clinically_validated:false,
+      inputs:{primary_metric:primary,secondary_metric:secondary,status_descriptor:descriptor,is_critical_flag:critical},
+      overall_urgency:urgency,total_alerts:alerts.length,alerts:alerts};
+    runs += 1;
+    count.textContent = String(runs);
+    summary.textContent = urgency;
+    output.textContent = JSON.stringify(last,null,2);
+    save.disabled = false;
+  });
+  document.getElementById("reset").addEventListener("click", function () {
+    form.reset();
+    last = null;
+    summary.textContent = "No evaluation yet";
+    output.textContent = "Select “Evaluate example” to inspect which illustrative rules fire.";
+    save.disabled = true;
+  });
+  save.addEventListener("click", function () {
+    if (!last) return;
+    const blob = new Blob([JSON.stringify(last,null,2)+"\n"],{type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "onco-cardio-demo.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  });
+}());
+</script>
 </body>
 </html>
