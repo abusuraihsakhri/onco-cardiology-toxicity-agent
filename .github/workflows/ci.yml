@@ -41,11 +41,14 @@ jobs:
       run: |
         pytest -q
 
-    - name: Security SAST & Zero-PHI Audit
+    - name: Audit signature verification
       run: |
         python -c "
-        from agents.base import PHIGuard, AuditLogger
-        import pytest
-        assert AuditLogger.verify_integrity() is True
-        print('Audit signature check passed')
+        from agents.base import AuditTrail
+        audit = AuditTrail()
+        audit.log('ci', 'test', 'VERIFY', {'sample':'synthetic'})
+        assert audit.verify_integrity()
+        audit.logs[0]['event_type'] = 'tampered'
+        assert not audit.verify_integrity()
+        print('Audit signing and tamper detection verified')
         "
