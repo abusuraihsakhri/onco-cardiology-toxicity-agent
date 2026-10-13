@@ -12,6 +12,7 @@ import argparse
 import csv
 import datetime
 import json
+import math
 import sys
 import uuid
 from pathlib import Path
@@ -33,15 +34,15 @@ class Severity(str):
 class DomainKnowledgeRegistry:
     """Enterprise domain rules, guideline matrices, and evidence benchmarks."""
     SYSTEM_VERSION = "2.0.0-PRO-CLINICAL"
-    ZERO_PHI_COMPLIANCE = True
-    HIPAA_SAFE_HARBOR = "ACTIVE_ON_PREMISES"
+    ZERO_PHI_COMPLIANCE = False
+    HIPAA_SAFE_HARBOR = "NOT_VERIFIED"
 
     @staticmethod
     def audit_security_and_integrity(payload: Dict[str, Any]) -> List[str]:
         warnings = []
         for key in payload.keys():
             if any(phi_keyword in key.lower() for phi_keyword in ["patient_name", "ssn", "mrn_raw", "dob_raw"]):
-                warnings.append(f"PHI_DEFENSE_TRIGGERED: Direct identifier '{key}' masked to synthetic token.")
+                warnings.append(f"PHI_DEFENSE_TRIGGERED: Direct identifier '{key}' detected; no automatic masking performed.")
         return warnings
 
 class AgentAlert:
@@ -71,6 +72,8 @@ class CumulativeDoseTrackerAgent:
     def evaluate(self, payload: Dict[str, Any]) -> List[AgentAlert]:
         alerts = []
         val1 = float(payload.get("metric_primary", 15.0))
+        if not math.isfinite(val1):
+            raise ValueError("metric_primary must be finite")
         if val1 > 20.0:
             alerts.append(
                 AgentAlert(
@@ -78,7 +81,7 @@ class CumulativeDoseTrackerAgent:
                     agent_name="CumulativeDoseTrackerAgent",
                     severity=Severity.WARNING,
                     title="Primary Metric Threshold Discrepancy",
-                    details=f"Primary metric value ({val1:.1f}) exceeded standard clinical baseline.",
+                    details=f"Primary metric value ({val1:.1f}) exceeded a unitless illustrative demo threshold.",
                     recommendation="Perform secondary cross-check and review calibration profile.",
                 )
             )
@@ -89,8 +92,11 @@ class TroponinKineticsAgent:
     """Specialized Sub-Agent 2 for onco-cardiology-toxicity-agent"""
     def evaluate(self, payload: Dict[str, Any]) -> List[AgentAlert]:
         alerts = []
-        is_critical = bool(payload.get("critical_flag", False))
+        raw_flag = payload.get("critical_flag", payload.get("is_stat", False))
+        is_critical = str(raw_flag).strip().lower() in ("true", "1", "yes")
         val2 = float(payload.get("metric_secondary", 5.0))
+        if not math.isfinite(val2):
+            raise ValueError("metric_secondary must be finite")
         if is_critical or val2 > 12.0:
             alerts.append(
                 AgentAlert(
@@ -99,7 +105,7 @@ class TroponinKineticsAgent:
                     severity=Severity.CRITICAL,
                     title="Urgent Consensus Protocol Trigger",
                     details=f"Secondary parameter index ({val2:.1f}) triggered automated supervisory escalation.",
-                    recommendation="Initiate mandatory closed-loop clinical notification protocol.",
+                    recommendation="Demo warning only; review real clinical concerns with qualified personnel.",
                 )
             )
         return alerts
@@ -109,7 +115,7 @@ class MyocarditisRiskStratifierAgent:
     """Specialized Sub-Agent 3 for onco-cardiology-toxicity-agent"""
     def evaluate(self, payload: Dict[str, Any]) -> List[AgentAlert]:
         alerts = []
-        status_text = str(payload.get("status_text", "NORMAL")).upper()
+        status_text = str(payload.get("status_text", payload.get("status_flag", "NORMAL"))).upper()
         if "DISCORDANT" in status_text or "SUSPICIOUS" in status_text:
             alerts.append(
                 AgentAlert(
@@ -166,9 +172,9 @@ class OncoCardioCoordinator:
         if "summary" in q or "status" in q:
             return f"OncoCardio Sentinel: Anthracycline & Immune Checkpoint Myocarditis Risk Agent currently tracking {len(self.case_registry)} cases in local air-gapped memory."
         elif "guidelines" in q or "protocol" in q:
-            return "All sub-agents operate under validated consensus clinical algorithms and CAP/CLSI/NCCN/WHO standards."
+            return "The rule examples are not validated clinical algorithms and do not implement clinical guideline recommendations."
         else:
-            return f"OncoCardio Sentinel: Anthracycline & Immune Checkpoint Myocarditis Risk Agent executive agent online. Continuous supervisory monitoring active across all domain parameters."
+            return f"OncoCardio Sentinel: Anthracycline & Immune Checkpoint Myocarditis Risk Agent executive agent online. Local demonstration only; no continuous clinical monitoring is performed."
 
 
 coordinator = OncoCardioCoordinator()
@@ -181,7 +187,7 @@ def create_app():
 
         app = FastAPI(
             title="OncoCardio Sentinel: Anthracycline & Immune Checkpoint Myocarditis Risk Agent",
-            description="Monitors cumulative doxorubicin equivalent doses (mg/m2), baseline LVEF drops, and ICI-mediated myocarditis troponin/ECG trajectories.",
+            description="Unitless rule demonstrator only; not suitable for clinical use.",
             version="1.0.0",
         )
 
