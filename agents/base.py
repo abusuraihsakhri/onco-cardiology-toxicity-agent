@@ -64,7 +64,9 @@ class AuditTrail:
         self.logs: List[Dict[str, Any]] = []
 
     def log(self, actor: str, actor_tier: str, event_type: str, details: Dict[str, Any]) -> Dict[str, Any]:
-        payload_str = json.dumps(details, sort_keys=True)
+        for label in (actor, actor_tier, event_type):
+            assert_no_phi(str(label))
+        payload_str = json.dumps(details, sort_keys=True, allow_nan=False)
         assert_no_phi(payload_str)
         payload_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
         audit_id = f"AUDIT-{int(time.time()*1000)}-{len(self.logs)+1}"
@@ -86,14 +88,32 @@ class AuditTrail:
         return entry
 
     def verify_integrity(self) -> bool:
-        for i, entry in enumerate(self.logs):
-            prev = self.logs[i-1]["current_hash"] if i > 0 else "GENESIS_BLOCK_0000000000000000"
-            if entry["prev_hash"] != prev:
+        """Verify both the hash chain and every HMAC signature."""
+        previous = "GENESIS_BLOCK_0000000000000000"
+        required = (
+            "audit_id", "timestamp", "actor", "actor_tier",
+            "event_type", "payload_hash", "prev_hash", "current_hash",
+        )
+        for entry in self.logs:
+            if not isinstance(entry, dict) or any(k not in entry for k in required):
                 return False
+            if not hmac.compare_digest(str(entry["prev_hash"]), previous):
+                return False
+            signing_input = "|".join(str(entry[k]) for k in (
+                "audit_id", "timestamp", "actor", "actor_tier",
+                "event_type", "payload_hash", "prev_hash",
+            ))
+            expected = hmac.new(
+                self.secret_key, signing_input.encode("utf-8"), hashlib.sha256
+            ).hexdigest()
+            if not hmac.compare_digest(str(entry["current_hash"]), expected):
+                return False
+            previous = expected
         return True
 
     def get_trail(self) -> List[Dict[str, Any]]:
-        return self.logs
+        """Return a snapshot, not a mutable reference to the internal audit state."""
+        return [entry.copy() for entry in self.logs]
 
 
 GLOBAL_AUDIT = AuditTrail()
