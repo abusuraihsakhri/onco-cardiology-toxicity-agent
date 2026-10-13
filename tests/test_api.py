@@ -101,7 +101,9 @@ def test_audit_logs_endpoint():
     from fastapi.testclient import TestClient
 
     client = TestClient(app)
-    response = client.get("/api/audit/logs")
+    os.environ["AUDIT_LOG_READ_TOKEN"] = "test-read-token-for-audit"
+    assert client.get("/api/audit/logs").status_code == 403
+    response = client.get("/api/audit/logs", headers={"X-Audit-Token": "test-read-token-for-audit"})
     assert response.status_code == 200
     data = response.json()
     assert "audit_trail" in data
@@ -165,3 +167,12 @@ def test_clinical_api_audit():
     data = response.json()
     assert data["case_id"] == "API-CLIN-01"
     assert data["total_alerts"] > 0
+
+
+def test_reject_nonfinite_metrics_and_restrict_logs():
+    from agents.api import app
+    from fastapi.testclient import TestClient
+    client = TestClient(app)
+    payload = {"task_id": "T1", "target_identifier": "SYN-T1", "primary_metric": "NaN"}
+    assert client.post("/api/audit", json=payload).status_code == 422
+    assert client.get("/api/audit/logs", headers={"X-Audit-Token":"incorrect"}).status_code in (403, 404)
